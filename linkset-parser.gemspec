@@ -40,5 +40,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "json-ld", "~> 3.2.0"
   spec.add_dependency "json-ld-preloaded", "~> 3.2.0"
   spec.add_dependency "securerandom", "~> 0.1.0"
-  
+  spec.add_dependency "metainspector", "~>5.11.2"
+
 end
