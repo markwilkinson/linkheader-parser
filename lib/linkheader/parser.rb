@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'parser/version'
+require_relative 'processor/version'
 require_relative 'constants'
 require_relative 'link'
 

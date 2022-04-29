@@ -1,4 +1,4 @@
-require_relative 'lib/linkheader/parser'
+require_relative 'lib/linkheader/parser.rb'
 require 'rest-client'
 
 url = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
