@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require_relative "lib/linkheader/parser/version"
+require_relative "lib/linkheader/processor/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "linkheader-parser"
+  spec.name = "linkheader-processor"
   spec.version = LinkHeader::Parser::VERSION
   spec.authors = ["Mark Wilkinson"]
   spec.email = ["markw@illuminae.com"]
 
-  spec.summary = "A parser for Link Headers and Linksets in both JSON and Text formats."
-  spec.description = "A parser for Link Headers and Linksets in both JSON and Text formats."
+  spec.summary = "A parser/processor for Link Headers and Linksets in both JSON and Text formats."
+  spec.description = "A parser/procesor for Link Headers and Linksets in both JSON and Text formats."
   spec.homepage = "https://github.com/markwilkinson/linkheader-parser"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"

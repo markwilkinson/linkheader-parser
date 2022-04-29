@@ -33,7 +33,7 @@ module LinkHeader
     #
     # Get the parser factory that contains all the links
     #
-    # @return [<Linkset::LinkFactory>] The factory containing the links that have been created so far
+    # @return [<LinkHeader::LinkFactory>] The factory containing the links (LinkHeader::Link) that have been created so far
     #
     def factory
       @factory
@@ -62,12 +62,19 @@ module LinkHeader
       parse_http_link_headers(head) # pass guid to check against anchors in linksets
       HTML_FORMATS['html'].each do |format|
         if head[:content_type] and head[:content_type].match(format)
-          htmllinks = parse_html_link_elements(body) # pass html body to find HTML link headers
+          htmllinks = parse_html_link_headers(body) # pass html body to find HTML link headers
         end
       end
     end
 
+    #
+    # Consume a String of the Link Headers and parse it into individual links. Will automatically retrieve and process any LinkSet references found.  All LinkHeader::Link objects end up in the LinkHeader::LinkFactory object (self.factory)
+    #
+    # @param [RestClient::Response::Header] headers  the Headers of a RestClent::Response.  Calls headers[:link] to retrieve '<https://example.one.com>; rel="preconnect", <https://example.two.com>; rel="preconnect",  <https://example.three.com>; rel="preconnect"'
+    #
+    #
     def parse_http_link_headers(headers)
+
       # Link: <https://example.one.com>; rel="preconnect", <https://example.two.com>; rel="preconnect",  <https://example.three.com>; rel="preconnect"
       links = headers[:link]
       return [] unless links
@@ -112,7 +119,12 @@ module LinkHeader
       end
     end
 
-    def parse_html_link_elements(body)
+    #
+    # Parses the link headers out of an HTML body, and adds links to the LinkHeader::LinkFactory object.  Will automatically retrieve and process any LinkSet references found
+    #
+    # @param [String] body The HTML of the page containing HTML Link headers
+    #
+    def parse_html_link_headers(body)
       m = MetaInspector.new('http://example.org', document: body)
       # an array of elements that look like this: [{:rel=>"alternate", :type=>"application/ld+json", :href=>"http://scidata.vitk.lv/dataset/303.jsonld"}]
 

@@ -1,8 +1,8 @@
 # LinkHeader::Parser
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/linkheader/parser`.
+A gem to extract Link Headers from Web responses.
 
-TODO: Delete this and the text above, and describe your gem
+This module handles HTTP Link Headers, HTML Link Headers, and auto-follows links to LinkSets in both JSON and Text format, and processes them also.
 
 ## Installation
 
@@ -16,17 +16,35 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-TODO: Write usage instructions here
+    require 'linkheader/parser'
+    require 'rest-client'
+
+    ur11 = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
+    url2 = "https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/"
+
+    parser = LinkHeader::Parser.new(default_anchor: url1)
+    response = RestClient.get(url1)
+
+    parser.extract_and_parse(response: response)
+    factory = parser.factory
+
+    factory.all_links.each  {|l| puts l.inspect; puts}
+
+    parser = LinkHeader::Parser.new(default_anchor: url2)
+    response = RestClient.get(url2)
+
+    parser.extract_and_parse(response: response)
+    factory = parser.factory
+
+    factory.all_links.each  {|l| puts l.inspect; puts}
+
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/linkheader-parser.
+Bug reports and pull requests are welcome on GitHub at https://github.com/markwilkinson/linkheader-parser.
 
 ## License
 
