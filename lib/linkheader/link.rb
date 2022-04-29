@@ -1,4 +1,4 @@
-module Linkset
+module LinkHeader
   class LinkFactory
     attr_accessor :default_anchor, :warnings
     @@all_links = Array.new

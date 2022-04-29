@@ -9,17 +9,46 @@ require 'rest-client'
 require 'securerandom'
 require 'metainspector'
 
-module Linkset
+module LinkHeader
   class Error < StandardError; end
 
+  # A Link Header parser
+  #
+  # Works for both HTML and HTTP links, and handles references to Linksets of either JSON or Text types
+  #
   class Parser
+    # @return [<Type>] <description>
     attr_accessor :default_anchor, :factory
 
+    #
+    # Create the Link Headers Parser and its Link factory
+    #
+    # @param [<String>] default_anchor Link relations always have an anchor, but it is sometimes implicit.  This value will be used in implicit cases.
+    #
     def initialize(default_anchor: 'https://default.anchor.org/')
       @default_anchor = default_anchor
       @factory = Linkset::LinkFactory.new(default_anchor: @default_anchor)
     end
 
+    #
+    # Get the parser factory that contains all the links
+    #
+    # @return [<Linkset::LinkFactory>] The factory containing the links that have been created so far
+    #
+    def factory
+      @factory
+    end
+
+    #
+    # Parses a RestClient::Response
+    #
+    # The HTTP headers are parsed for Links and if those links contain a Linkset, that is retrieved and parsed
+    # If the Response is of some HTML form, this is also parsed for Link headers and Linkset links
+    # All discovered links end up in a LinkHeader::LinkFactory object (self.factory)
+    #
+    # @param [<RestClilent::Response>] response The full response object from an HTTP 2** successful call
+    #
+    #
     def extract_and_parse(response: RestClient::Response.new)
       head = response.headers
       body = response.body
@@ -36,7 +65,6 @@ module Linkset
           htmllinks = parse_html_link_elements(body) # pass html body to find HTML link headers
         end
       end
-      return self.factory
     end
 
     def parse_http_link_headers(headers)
@@ -50,7 +78,7 @@ module Linkset
 
       # Parse each part into a named link
       split_http_link_headers(parts) # creates links from the split headers and adds to factory.all_links
-      check_for_linkset(responsepart: :header)
+      check_for_linkset(responsepart: :header)  # all links are held in the Linkset::LinkFactory object (factory variable here).  This scans the links for a linkset link to follow
     end
 
     def split_http_link_headers(parts)
@@ -82,7 +110,6 @@ module Linkset
 
         factory.new_link(responsepart: :header, anchor: anchor, href: href, relation: relation, **sections) # parsed['https://example.one.com'][:rel] = "preconnect"
       end
-      factory
     end
 
     def parse_html_link_elements(body)
@@ -90,21 +117,21 @@ module Linkset
       # an array of elements that look like this: [{:rel=>"alternate", :type=>"application/ld+json", :href=>"http://scidata.vitk.lv/dataset/303.jsonld"}]
 
       m.head_links.each do |l|
-        next unless l[:href] and l[:rel]  # required
-        anchor = l[:anchor] || self.default_anchor
+        next unless l[:href] and l[:rel] # required
+
+        anchor = l[:anchor] || default_anchor
         l.delete(:anchor)
         relation = l[:rel]
         l.delete(:rel)
         href = l[:href]
         l.delete(:href)
-        factory.new_link(responsepart: :body, anchor: anchor, href: href, relation: relation, **l) 
+        factory.new_link(responsepart: :body, anchor: anchor, href: href, relation: relation, **l)
       end
       check_for_linkset(responsepart: :body)
     end
 
-    def check_for_linkset(responsepart:) 
-
-      self.factory.linksets.each do |linkset|
+    def check_for_linkset(responsepart:)
+      factory.linksets.each do |linkset|
         case linkset.type
         when 'application/linkset+json'
           processJSONLinkset(linkset.href, responsepart)
@@ -117,7 +144,7 @@ module Linkset
     end
 
     def processJSONLinkset(href, responsepart)
-      headers, linkset = fetch(href, { 'Accept' => 'application/linkset+json' })
+      _headers, linkset = fetch(href, { 'Accept' => 'application/linkset+json' })
       # warn headers.inspect
       # warn linkset.inspect
 
@@ -139,29 +166,26 @@ module Linkset
 
       linkset = JSON.parse(linkset)
       linkset['linkset'].each do |ls|
-        #warn ls.inspect, "\n"
+        # warn ls.inspect, "\n"
         anchor = ls['anchor'] || link
         ls.delete('anchor') if ls['anchor'] # we need to delete since all others have a list as a value
         attrhash = {}
         parsed[anchor] = {}
-        #warn ls.keys, "\n"
+        # warn ls.keys, "\n"
 
-        ls.keys.each do |reltype| # key =  e.g. "item", "described-by". "cite"
+        ls.each_key do |reltype| # key =  e.g. "item", "described-by". "cite"
           # warn reltype, "\n"
           # warn ls[reltype], "\n"
           ls[reltype].each do |relation|  # relation = e.g.  {"href": "http://example.com/foo1", "type": "text/html"}
             next unless relation['href']  # this is a required attribute of a  linkset relation
 
             href = relation['href']
-
-            # relation.delete('href')
             # now go through the other attributes of that relation
             relation.each do |attr, val| # attr = e.g. "type"; val = "text/html"
               attrhash[attr.to_sym] = val
             end
-            link = lsfactory.new_link(responsepart: responsepart, href: href, relation: reltype, anchor: anchor, **attrhash)
+            lsfactory.new_link(responsepart: responsepart, href: href, relation: reltype, anchor: anchor, **attrhash)
 
-            # parsed[anchor].merge!({ linkurl => { reltype.to_sym => attrhash } })
           end
         end
       end

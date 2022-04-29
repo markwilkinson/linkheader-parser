@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
-require_relative "lib/linkset/parser/version"
+require_relative "lib/linkheader/parser/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "linkset-parser"
-  spec.version = Linkset::Parser::VERSION
+  spec.name = "linkheader-parser"
+  spec.version = LinkHeader::Parser::VERSION
   spec.authors = ["Mark Wilkinson"]
   spec.email = ["markw@illuminae.com"]
 
-  spec.summary = "A parser for Linksets in both JSON and Text formats."
-  spec.description = "A parser for Linksets in both JSON and Text formats."
-  spec.homepage = "https://github.com/markwilkinson/linkset-parser"
+  spec.summary = "A parser for Link Headers and Linksets in both JSON and Text formats."
+  spec.description = "A parser for Link Headers and Linksets in both JSON and Text formats."
+  spec.homepage = "https://github.com/markwilkinson/linkheader-parser"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/markwilkinson/linkset-parser"
-  spec.metadata["changelog_uri"] = "https://github.com/markwilkinson/linkset-parser/blob/master/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/markwilkinson/linkheader-parser"
+  spec.metadata["changelog_uri"] = "https://github.com/markwilkinson/linkheader-parser/blob/master/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
