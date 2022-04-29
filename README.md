@@ -8,15 +8,15 @@ This module handles HTTP Link Headers, HTML Link Headers, and auto-follows links
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add linkheader-parser
+    $ bundle add linkheader-procesor
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install linkheader-parser
+    $ gem install linkheader-processor
 
 ## Usage
 
-    require 'linkheader/parser'
+    require 'linkheader/procesor'
     require 'rest-client'
 
     ur11 = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
