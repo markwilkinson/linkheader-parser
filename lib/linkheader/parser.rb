@@ -27,7 +27,7 @@ module LinkHeader
     #
     def initialize(default_anchor: 'https://default.anchor.org/')
       @default_anchor = default_anchor
-      @factory = Linkset::LinkFactory.new(default_anchor: @default_anchor)
+      @factory = LinkHeader::LinkFactory.new(default_anchor: @default_anchor)
     end
 
     #

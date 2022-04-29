@@ -9,7 +9,7 @@ module LinkHeader
     end
 
     def new_link(responsepart:, href:, relation:, anchor: @default_anchor, **kwargs)
-      link = Linkset::Link.new(responsepart: responsepart, factory: self, href: href, anchor: anchor, relation: relation, **kwargs)
+      link = LinkHeader::Link.new(responsepart: responsepart, factory: self, href: href, anchor: anchor, relation: relation, **kwargs)
       sanitycheck(link)  # this will add warnings if the link already exists and has a conflict
       @@all_links |= [link]
       return link
