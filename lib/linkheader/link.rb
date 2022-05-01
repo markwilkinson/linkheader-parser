@@ -140,8 +140,6 @@ module LinkHeader
     attr_accessor :href
     # @return [String] What is the relation? (e.g. "cite-as")
     attr_accessor :relation
-    # @return [String] if the object is MIME-typed, what is the type?  (e.g. 'text/html')
-    attr_accessor :type
     # @return [LinkHeader::LinkFactory] The factory that made the Link
     attr_accessor :factory
     # @return [Symbol] :header, :body, or :linkset indicating the place the Link object originated
