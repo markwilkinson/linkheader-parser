@@ -148,7 +148,7 @@ module LinkHeader
     #
     # Create the Link object
     #
-    # @param [Symbol] responsepart :head, :body, :linkset
+    # @param [Symbol] responsepart :header, :body, :linkset
     # @param [LinkHeader::LinkFactory] factory the factory that made the link
     # @param [String] href The URL of the Link
     # @param [String] anchor The URL of the anchor
