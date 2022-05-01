@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    linkheader-processor (0.1.0)
+    linkheader-processor (0.1.2)
       json (~> 2.5.1)
       json-ld (~> 3.2.0)
       json-ld-preloaded (~> 3.2.0)
