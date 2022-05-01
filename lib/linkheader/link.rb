@@ -29,8 +29,9 @@ module LinkHeader
     # @return [LinkHeader::Link] The Link object just created
     #
     def new_link(responsepart:, href:, relation:, anchor: @default_anchor, **kwargs)
+      # warn "creating new link with kw #{kwargs}"
       link = LinkHeader::Link.new(responsepart: responsepart, factory: self, href: href, anchor: anchor, relation: relation, **kwargs)
-      sanitycheck(link)  # this will add warnings if the link already exists and has a conflict
+      link = sanitycheck(link)  # this will add warnings if the link already exists and has a conflict.  returns the original of a duplicate
       @@all_links |= [link]
       return link
     end
@@ -53,10 +54,10 @@ module LinkHeader
       links = Array.new
       self.all_links.each do |link|
         # warn "found #{link.relation}"
-        next unless link.relation == :linkset
-        links << Link
+        next unless link.relation == 'linkset'
+        links << link
       end
-      return links
+     links
     end
 
     #
@@ -69,7 +70,7 @@ module LinkHeader
       self.all_links.each do |link|
         # warn "found #{link.relation}"
         next unless link.responsepart == :header
-        links << Link
+        links << link
       end
       links
     end
@@ -84,7 +85,7 @@ module LinkHeader
       self.all_links.each do |link|
         # warn "found #{link.relation}"
         next unless link.responsepart == :body
-        links << Link
+        links << link
       end
       links
     end
@@ -99,12 +100,13 @@ module LinkHeader
       self.all_links.each do |link|
         # warn "found #{link.relation}"
         next unless link.responsepart == :linkset
-        links << Link
+        links << link
       end
       links
     end
 
     def sanitycheck(link)
+      flag = true
       self.all_links.each do |l|
         if l.relation == "cite-as" and link.relation == "cite-as"
           if l.href != link.href
@@ -115,13 +117,21 @@ module LinkHeader
           if l.relation != link.relation
             @warnings << 'WARN: Found identical hrefs with different relation types.  This may be suspicious. Both have been retained'
           end
+          if l.relation = link.relation
+            @warnings << 'WARN: found apparent duplicate. Ignoring and returning known link'
+            link = l
+          end
         end
       end
+      link
     end
   end
 
   #
-  # An LinkHeader::Link represnting an HTTP Link Header, an HTML LinkHeader, or a LinkSet Link.
+  # LinkHeader::Link represnts an HTTP Link Header, an HTML LinkHeader, or a LinkSet Link.
+  #
+  # #anchor, #href, and #relation are all guaranteed to return a value.  Other methods are dynamically created based on what key/value pairs exist in the link
+  # for example, if "'type': 'text/html'" exists in the link description, then the method #type will be available on the Link object.
   #
   class Link
     # @return [String] URL of the Link anchor
@@ -148,7 +158,7 @@ module LinkHeader
     # @param [hash] **kwargs The remaining facets of the link (e.g. type => 'text/html')
     #
     def initialize(responsepart:, factory:, href:, anchor:, relation:, **kwargs)
-     
+      # warn "incoming kw args #{kwargs}"
       @href = href
       @anchor = anchor
       @relation = relation
@@ -156,6 +166,8 @@ module LinkHeader
       @responsepart = responsepart
 
       kwargs.each do |k, v|
+        # warn "key #{k} val #{v}"
+
         define_singleton_method(k.to_sym) {
           value = instance_variable_get("@#{k}")
           return value
@@ -164,6 +176,8 @@ module LinkHeader
           instance_variable_set("@#{k}", val)
           return "@#{k}".to_sym
         end
+        # warn "methods:  #{self.methods - Object.new.methods}"
+        self.send("#{k}=", v)
       end
     end
   end

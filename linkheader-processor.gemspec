@@ -9,16 +9,16 @@ Gem::Specification.new do |spec|
   spec.email = ["markw@illuminae.com"]
 
   spec.summary = "A parser/processor for Link Headers and Linksets in both JSON and Text formats."
-  spec.description = "A parser/procesor for Link Headers and Linksets in both JSON and Text formats."
-  spec.homepage = "https://github.com/markwilkinson/linkheader-parser"
+  spec.description = "A parser/processor for Link Headers and Linksets in both JSON and Text formats."
+  spec.homepage = "https://github.com/markwilkinson/linkheader-processor"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/markwilkinson/linkheader-parser"
-  spec.metadata["changelog_uri"] = "https://github.com/markwilkinson/linkheader-parser/blob/master/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/markwilkinson/linkheader-processor"
+  spec.metadata["changelog_uri"] = "https://github.com/markwilkinson/linkheader-processor/blob/master/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

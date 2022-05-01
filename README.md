@@ -8,7 +8,7 @@ This module handles HTTP Link Headers, HTML Link Headers, and auto-follows links
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add linkheader-procesor
+    $ bundle add linkheader-processor
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
@@ -16,27 +16,42 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-    require 'linkheader/procesor'
-    require 'rest-client'
+require 'linkheader/processor'
+require 'rest-client'
 
-    ur11 = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
-    url2 = "https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/"
+url1 = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
+url2 = "https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/"
 
-    parser = LinkHeader::Parser.new(default_anchor: url1)
-    response = RestClient.get(url1)
+p = LinkHeader::Parser.new(default_anchor: url1)
+r = RestClient.get(url1)
 
-    parser.extract_and_parse(response: response)
-    factory = parser.factory
+p.extract_and_parse(response: r)
+factory = p.factory
 
-    factory.all_links.each  {|l| puts l.inspect; puts}
+factory.all_links.each do |l| 
+    puts l.href
+    puts l.relation
+    puts l.responsepart
+    puts
+    puts
+end
 
-    parser = LinkHeader::Parser.new(default_anchor: url2)
-    response = RestClient.get(url2)
 
-    parser.extract_and_parse(response: response)
-    factory = parser.factory
 
-    factory.all_links.each  {|l| puts l.inspect; puts}
+p = LinkHeader::Parser.new(default_anchor: url2)
+r = RestClient.get(url2)
+
+p.extract_and_parse(response: r)
+factory = p.factory
+
+factory.all_links.each do |l| 
+    puts l.href
+    puts l.relation
+    puts l.responsepart
+    puts
+    puts
+end
+
 
 
 ## Development

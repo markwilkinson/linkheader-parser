@@ -3,6 +3,7 @@
 require_relative 'processor/version'
 require_relative 'constants'
 require_relative 'link'
+require_relative 'web_utils'
 
 require 'json'
 require 'rest-client'
@@ -79,9 +80,9 @@ module LinkHeader
       links = headers[:link]
       return [] unless links
 
-      # $stderr.puts links.inspect
+      # warn links.inspect
       parts = links.split(',') # ["<https://example.one.com>; rel='preconnect'", "<https://example.two.com>; rel="preconnect"".....]
-      # $stderr.puts parts
+      # warn parts
 
       # Parse each part into a named link
       split_http_link_headers(parts) # creates links from the split headers and adds to factory.all_links
@@ -90,8 +91,10 @@ module LinkHeader
 
     def split_http_link_headers(parts)
       parts.each do |part, _index|
+        # warn "link is:  #{part}"
+
         section = part.split(';') # ["<https://example.one.com>", "rel='preconnect'"]
-        # $stderr.puts section
+        # warn section
         next unless section[0]
 
         href = section[0][/<(.*)>/, 1]
@@ -129,6 +132,7 @@ module LinkHeader
       # an array of elements that look like this: [{:rel=>"alternate", :type=>"application/ld+json", :href=>"http://scidata.vitk.lv/dataset/303.jsonld"}]
 
       m.head_links.each do |l|
+        # warn "link is:  #{l}"
         next unless l[:href] and l[:rel] # required
 
         anchor = l[:anchor] || default_anchor
@@ -143,22 +147,28 @@ module LinkHeader
     end
 
     def check_for_linkset(responsepart:)
+      # warn "looking for a linkset"
       factory.linksets.each do |linkset|
+        # warn "found #{linkset.methods- Object.new.methods}"
+        # warn "inspect #{linkset.inspect}"
+        next unless linkset.respond_to? 'type'
+        # warn "responds #{linkset.type}  "
         case linkset.type
         when 'application/linkset+json'
-          processJSONLinkset(linkset.href, responsepart)
+          # warn "found a json linkset"
+          processJSONLinkset(href: linkset.href)
         when 'application/linkset'
-          processTextLinkset(link.href, responsepart)
+          # warn "found a text linkset"
+          processTextLinkset(href:linkset.href)
         else
-          warn "the linkset #{linkset} was not typed as 'application/linkset+json' or 'application/linkset', and it should be!  Ignoring..."
+          warn "the linkset #{linkset} was not typed as 'application/linkset+json' or 'application/linkset', and it should be! (found #{linkset.type}) Ignoring..."
         end
       end
     end
 
-    def processJSONLinkset(href, responsepart)
+    def processJSONLinkset(href:)
       _headers, linkset = fetch(href, { 'Accept' => 'application/linkset+json' })
-      # warn headers.inspect
-      # warn linkset.inspect
+      # warn "Linkset body #{linkset.inspect}"
 
       return nil unless linkset
 
@@ -179,58 +189,62 @@ module LinkHeader
       linkset = JSON.parse(linkset)
       linkset['linkset'].each do |ls|
         # warn ls.inspect, "\n"
-        anchor = ls['anchor'] || link
+        anchor = ls['anchor'] || @default_anchor
         ls.delete('anchor') if ls['anchor'] # we need to delete since all others have a list as a value
         attrhash = {}
-        parsed[anchor] = {}
         # warn ls.keys, "\n"
 
         ls.each_key do |reltype| # key =  e.g. "item", "described-by". "cite"
           # warn reltype, "\n"
           # warn ls[reltype], "\n"
-          ls[reltype].each do |relation|  # relation = e.g.  {"href": "http://example.com/foo1", "type": "text/html"}
-            next unless relation['href']  # this is a required attribute of a  linkset relation
+          ls[reltype].each do |attrs|  # attr = e.g.  {"href": "http://example.com/foo1", "type": "text/html"}
+            next unless attrs['href']  # this is a required attribute of a  linkset relation
 
-            href = relation['href']
+            href = attrs['href']
             # now go through the other attributes of that relation
-            relation.each do |attr, val| # attr = e.g. "type"; val = "text/html"
+            attrs.each do |attr, val| # attr = e.g. "type"; val = "text/html"
               attrhash[attr.to_sym] = val
             end
-            lsfactory.new_link(responsepart: responsepart, href: href, relation: reltype, anchor: anchor, **attrhash)
-
           end
+          factory.new_link(responsepart: :linkset, href: href, relation: reltype, anchor: anchor, **attrhash)
         end
       end
     end
 
-    def processTextLinkset(link, _anchor)
-      parsed = {}
-      _headers, linkset = fetch(link, { 'Accept' => 'application/linkset' })
-      # $stderr.puts "headers #{headers.inspect}"
+    def processTextLinkset(href:)
+      headers, linkset = fetch(href, { 'Accept' => 'application/linkset' })
+      # warn "linkset body #{linkset.inspect}"
       return {} unless linkset
 
       links = linkset.scan(/(<.*?>[^<]+)/) # split on the open angle bracket, which indicates a new link
+      # warn "Links found #{links}"
 
       links.each do |ls|
+        # warn "workking on link #{ls}"
         ls = ls.first # ls is a single element array
         elements = ls.split(';') # semicolon delimited fields
         # ["<https://w3id.org/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/>", "anchor=\"https://s11.no/2022/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/\"", "rel=\"cite-as\""]
         href = elements.shift # first element is always the link url
+        # warn "working on link href #{href}"
         href = href.match(/<([^>]+)>/)[1]
-        linkshash = {}
+        attrhash = {}
         elements.each do |e|
           key, val = e.split('=')
           key.strip!
           val.strip!
           val.delete_prefix!('"').delete_suffix!('"') # get rid of newlines and start/end quotes
-          linkshash[key.to_sym] = val # split on key=val and make key a symbol
-        end
-
-        # $stderr.puts "linkshash #{linkshash}\n#{linkshash[:anchor]}\n#{anchor}\n\n"
-        # next unless linkshash[:anchor] and linkshash[:anchor] == anchor # eliminate the ones we don't want
-        parsed[href] = linkshash
+          attrhash[key.to_sym] = val # split on key=val and make key a symbol
+        end 
+        warn "No link relation type... this is bad!  Skipping" unless attrhash[:rel]
+        next unless attrhash[:rel]
+        reltype = attrhash[:rel]
+        attrhash.delete(:rel)
+        anchor = attrhash[:anchor] || @default_anchor
+        attrhash.delete(:anchor)
+        
+        factory.new_link(responsepart: :linkset, href: href, relation: reltype, anchor: anchor, **attrhash)
+        # warn "created #{[href, reltype, anchor, **attrhash]}"
       end
-      parsed
     end
   end
 end
