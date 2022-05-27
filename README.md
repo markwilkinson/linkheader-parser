@@ -16,8 +16,12 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
+```
+
 require 'linkheader/processor'
 require 'rest-client'
+
+# these two URLs return linksets in the newer json format, and the old text format
 
 url1 = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
 url2 = "https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/"
@@ -52,6 +56,7 @@ factory.all_links.each do |l|
     puts
 end
 
+```
 
 
 ## Development
