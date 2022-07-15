@@ -16,17 +16,22 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
+```
 require 'linkheader/processor'
 require 'rest-client'
 
-url1 = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
+# url1 has http link headers, and a reference to a linkset in json format
+url1 = "https://s11.no/2022/a2a-fair-metrics/
+07-http-describedby-citeas-linkset-json/"
+
+# url2 has http link headers, with a reference to a linkset in legacy text format
 url2 = "https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/"
 
 p = LinkHeader::Parser.new(default_anchor: url1)
 r = RestClient.get(url1)
 
 p.extract_and_parse(response: r)
-factory = p.factory
+factory = p.factory  # LinkHeader::LinkFactory
 
 factory.all_links.each do |l| 
     puts l.href
@@ -51,7 +56,7 @@ factory.all_links.each do |l|
     puts
     puts
 end
-
+```
 
 
 ## Development
