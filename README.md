@@ -23,8 +23,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
     require 'rest-client'
 
     # url1 has http link headers, and a reference to a linkset in json format
-    url1 = "https://s11.no/2022/a2a-fair-metrics/
-    07-http-describedby-citeas-linkset-json/"
+    url1 = "https://s11.no/2022/a2a-fair-metrics/07-http-describedby-citeas-linkset-json/"
 
     # url2 has http link headers, with a reference to a linkset in legacy text format
     url2 = "https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/"
@@ -39,7 +38,11 @@ If bundler is not being used to manage dependencies, install the gem by executin
         puts l.href
         puts l.relation
         puts l.responsepart
-        puts
+
+        puts l.linkmethods  # returns list of instance methods beyond href and relation, that are attributes of the link
+        l.linkmethods.each do |method|
+            puts "#{method}=" + l.send(method)
+        end
         puts
     end
 
