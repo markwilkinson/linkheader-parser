@@ -30,7 +30,7 @@ module LinkHeaders
     #
     def new_link(responsepart:, href:, relation:, anchor: @default_anchor, **kwargs)
       # warn "creating new link with kw #{kwargs}"
-      link = LinkHeader::Link.new(responsepart: responsepart, factory: self, href: href, anchor: anchor, relation: relation, **kwargs)
+      link = LinkHeaders::Link.new(responsepart: responsepart, factory: self, href: href, anchor: anchor, relation: relation, **kwargs)
       link = sanitycheck(link)  # this will add warnings if the link already exists and has a conflict.  returns the original of a duplicate
       @@all_links |= [link]
       return link
