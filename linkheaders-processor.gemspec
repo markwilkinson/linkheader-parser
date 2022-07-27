@@ -4,7 +4,7 @@ require_relative "lib/linkheaders/processor/version"
 
 Gem::Specification.new do |spec|
   spec.name = "linkheaders-processor"
-  spec.version = LinkHeaders::Processer::VERSION
+  spec.version = LinkHeaders::Processor::VERSION
   spec.authors = ["Mark Wilkinson"]
   spec.email = ["markw@illuminae.com"]
 
