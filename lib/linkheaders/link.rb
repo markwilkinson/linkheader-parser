@@ -1,4 +1,4 @@
-module LinkHeader
+module LinkHeaders
   class LinkFactory
 
     # @return [<String>] the HTTP anchor used by default for implicit Links

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/linkheader/processor/version"
+require_relative "lib/linkheaders/processor/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "linkheader-processor"
-  spec.version = LinkHeader::Parser::VERSION
+  spec.name = "linkheaders-processor"
+  spec.version = LinkHeaders::Processer::VERSION
   spec.authors = ["Mark Wilkinson"]
   spec.email = ["markw@illuminae.com"]
 
@@ -35,10 +35,10 @@ Gem::Specification.new do |spec|
   # tests
   spec.add_development_dependency 'rspec'
   # benchmarks
-  spec.add_dependency "rest-client", "~> 2.1.0"
-  spec.add_dependency "json", "~> 2.5.1"
-  spec.add_dependency "json-ld", "~> 3.2.0"
-  spec.add_dependency "json-ld-preloaded", "~> 3.2.0"
+  spec.add_dependency "rest-client", "~> 2.1"
+  spec.add_dependency "json", "~> 2.0"
+  spec.add_dependency "json-ld", "~> 3.2"
+  spec.add_dependency "json-ld-preloaded", "~> 3.2"
   spec.add_dependency "securerandom", "~> 0.1.0"
   spec.add_dependency "metainspector", "~>5.11.2"
 

@@ -10,7 +10,7 @@ require 'rest-client'
 require 'securerandom'
 require 'metainspector'
 
-module LinkHeader
+module LinkHeaders
   class Error < StandardError; end
 
   # A Link Header parser
