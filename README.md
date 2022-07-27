@@ -8,18 +8,18 @@ This module handles HTTP Link Headers, HTML Link Headers, and auto-follows links
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add linkheader-processor
+    $ bundle add linkheaders-processor
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install linkheader-processor
+    $ gem install linkheaders-processor
 
 ## Usage
 
 
 ```
 
-    require 'linkheader/processor'
+    require 'linkheaders/processor'
     require 'rest-client'
 
     # url1 has http link headers, and a reference to a linkset in json format
@@ -28,7 +28,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
     # url2 has http link headers, with a reference to a linkset in legacy text format
     url2 = "https://s11.no/2022/a2a-fair-metrics/28-http-linkset-txt-only/"
 
-    p = LinkHeader::Parser.new(default_anchor: url1)
+    p = LinkHeaders::Processor.new(default_anchor: url1)
     r = RestClient.get(url1)
 
     p.extract_and_parse(response: r)
@@ -48,7 +48,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 
 
-    p = LinkHeader::Parser.new(default_anchor: url2)
+    p = LinkHeaders::Processor.new(default_anchor: url2)
     r = RestClient.get(url2)
 
     p.extract_and_parse(response: r)

@@ -17,7 +17,7 @@ module LinkHeaders
   #
   # Works for both HTML and HTTP links, and handles references to Linksets of either JSON or Text types
   #
-  class Parser
+  class Processor
     # @return [<Type>] <description>
     attr_accessor :default_anchor, :factory
 
