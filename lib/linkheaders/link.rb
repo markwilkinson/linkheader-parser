@@ -17,6 +17,7 @@ module LinkHeaders
       @warnings = Array.new
     end
 
+
     #
     # Create a new LinkHeader::Link object
     #
@@ -30,6 +31,10 @@ module LinkHeaders
     #
     def new_link(responsepart:, href:, relation:, anchor: @default_anchor, **kwargs)
       # warn "creating new link with kw #{kwargs}"
+      if relation.split(/\s/).length > 1
+        @warnings |= ['WARN: the link relation contains spaces.  This is allowed by the standard to indicate multiple relations for the same link, but this MUST be processed before creating a LinkHeaders::Link object!']
+      end
+
       link = LinkHeaders::Link.new(responsepart: responsepart, factory: self, href: href, anchor: anchor, relation: relation, **kwargs)
       link = sanitycheck(link)  # this will add warnings if the link already exists and has a conflict.  returns the original of a duplicate
       @@all_links |= [link]
@@ -106,19 +111,21 @@ module LinkHeaders
     end
 
     def sanitycheck(link)
-      flag = true
+      if link.relation == "describedby" and !(link.respond_to? 'type')
+        @warnings |= ['WARN: A describedby link should include a "type" attribute, to know the MIME type of the addressed description']
+      end
+
       self.all_links.each do |l|
         if l.relation == "cite-as" and link.relation == "cite-as"
           if l.href != link.href
-            @warnings << 'WARN: Found conflicting cite-as relations.  This should never happen'
+            @warnings |= ['WARN: Found conflicting cite-as relations.  This should never happen']
           end
         end
         if l.href == link.href
           if l.relation != link.relation
-            @warnings << 'WARN: Found identical hrefs with different relation types.  This may be suspicious. Both have been retained'
-          end
-          if l.relation = link.relation
-            @warnings << 'WARN: found apparent duplicate. Ignoring and returning known link'
+            @warnings |= ['WARN: Found identical hrefs with different relation types.  This may be suspicious. Both have been retained']
+          else
+            @warnings |= ['WARN: found apparent duplicate. Ignoring and returning known link']
             link = l
           end
         end

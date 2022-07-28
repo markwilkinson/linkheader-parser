@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   spec.test_files = `git ls-files spec examples`.split("\n")
   # tests
-  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rspec',  "~> 3.11"
   # benchmarks
   spec.add_dependency "rest-client", "~> 2.1"
   spec.add_dependency "json", "~> 2.0"
