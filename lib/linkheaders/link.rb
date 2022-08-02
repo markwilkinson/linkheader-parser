@@ -5,7 +5,7 @@ module LinkHeaders
     attr_accessor :default_anchor
     # @return [Array] An array of strings containing any warnings that were encountered when creating the link (e.g. duplicate cite-as but non-identical URLs)
     attr_accessor :warnings
-    @@all_links = Array.new
+    attr_accessor :all_links
 
     #
     # Create the LinkFacgtory Object
@@ -15,6 +15,7 @@ module LinkHeaders
     def initialize(default_anchor: 'https://example.org/')
       @default_anchor = default_anchor
       @warnings = Array.new
+      @all_links = Array.new
     end
 
 
@@ -37,7 +38,7 @@ module LinkHeaders
 
       link = LinkHeaders::Link.new(responsepart: responsepart, factory: self, href: href, anchor: anchor, relation: relation, **kwargs)
       link = sanitycheck(link)  # this will add warnings if the link already exists and has a conflict.  returns the original of a duplicate
-      @@all_links |= [link]
+      self.all_links |= [link]
       return link
     end
 
@@ -47,7 +48,7 @@ module LinkHeaders
     # @return [Array] Array of all LinkHeader::Link objects created by the factory so far
     #
     def all_links
-      @@all_links
+      @all_links
     end
 
     #
