@@ -1,4 +1,4 @@
-def fetch(url, headers = ACCEPT_ALL_HEADER)  # we will try to retrieve turtle whenever possible
+def lhfetch(url, headers = ACCEPT_STAR_HEADER)
   # warn "In fetch routine now.  "
 
   # warn "executing call over the Web to #{url.to_s}"

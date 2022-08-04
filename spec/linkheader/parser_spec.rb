@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe LinkHeader::Parser do
+RSpec.describe LinkHeaders::Processor do
   it 'has a version number' do
-    expect(LinkHeader::Parser::VERSION).not_to be nil
+    expect(LinkHeaders::Processor::VERSION).not_to be nil
   end
 end

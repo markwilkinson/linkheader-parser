@@ -4,7 +4,7 @@ require_relative 'processor/version'
 require_relative 'constants'
 require_relative 'link'
 require_relative 'web_utils'
-
+require 'link_header'
 require 'json'
 require 'rest-client'
 require 'securerandom'
@@ -189,7 +189,7 @@ module LinkHeaders
     end
 
     def processJSONLinkset(href:)
-      _headers, linkset = fetch(href, { 'Accept' => 'application/linkset+json' })
+      _headers, linkset = lhfetch(href, { 'Accept' => 'application/linkset+json' })
       # warn "Linkset body #{linkset.inspect}"
       newlinks = Array.new
       return nil unless linkset
@@ -242,7 +242,7 @@ module LinkHeaders
 
     def processTextLinkset(href:)
       newlinks = Array.new
-      headers, linkset = fetch(href, { 'Accept' => 'application/linkset' })
+      headers, linkset = lhfetch(href, { 'Accept' => 'application/linkset' })
       # warn "linkset body #{linkset.inspect}"
       return {} unless linkset
 

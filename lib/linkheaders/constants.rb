@@ -1,4 +1,5 @@
 ACCEPT_ALL_HEADER = {'Accept' => 'text/turtle, application/ld+json, application/rdf+xml, text/xhtml+xml, application/n3, application/rdf+n3, application/turtle, application/x-turtle, text/n3, text/turtle, text/rdf+n3, text/rdf+turtle, application/n-triples' }
+ACCEPT_STAR_HEADER = {'Accept' => '*/*'}
 
 TEXT_FORMATS = {
     'text' => ['text/plain',],

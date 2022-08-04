@@ -1,3 +1,4 @@
+
 module LinkHeaders
   class LinkFactory
 
@@ -190,6 +191,25 @@ module LinkHeaders
         # warn "methods:  #{self.methods - Object.new.methods}"
         self.send("#{k}=", v)
       end
+    end
+
+    #
+    # Create an HTML version of the link
+    # @return [String]  HTML version of the Link object
+    #
+    def to_html
+      methods = self.linkmethods
+      href = self.href
+      rel = self.relation
+      anchor = self.anchor
+      properties = []
+      methods.each do |method|
+        value = self.send(method)
+        properties << [method, value]
+      end
+      properties << ["rel", rel]
+      properties << ["anchor", anchor]
+      LinkHeader::Link.new(href, properties).to_html
     end
   end
 end
