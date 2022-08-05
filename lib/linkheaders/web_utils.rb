@@ -1,4 +1,4 @@
-def lhfetch(url, headers = ACCEPT_STAR_HEADER)
+def lhfetch(url, headers = {accept: "*/*"})
   # warn "In fetch routine now.  "
 
   # warn "executing call over the Web to #{url.to_s}"

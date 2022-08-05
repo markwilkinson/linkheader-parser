@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'processor/version'
-require_relative 'constants'
 require_relative 'link'
 require_relative 'web_utils'
 require 'link_header'
@@ -63,7 +62,7 @@ module LinkHeaders
       newlinks = parse_http_link_headers(head) # pass guid to check against anchors in linksets
       warn "HTTPlinks #{newlinks.inspect}"
 
-      HTML_FORMATS['html'].each do |format|
+      ['text/html','text/xhtml+xml', 'application/xhtml+xml'].each do |format|
         if head[:content_type] and head[:content_type].match(format)
           warn "found #{format} content - parsing"
           htmllinks = parse_html_link_headers(body) # pass html body to find HTML link headers
