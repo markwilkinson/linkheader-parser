@@ -65,7 +65,7 @@ module LinkHeaders
       ['text/html','text/xhtml+xml', 'application/xhtml+xml'].each do |format|
         if head[:content_type] and head[:content_type].match(format)
           warn "found #{format} content - parsing"
-          htmllinks = parse_html_link_headers(body) # pass html body to find HTML link headers
+          htmllinks = parse_html_link_headers(body: body, anchor: default_anchor) # pass html body to find HTML link headers
           warn "htmllinks #{htmllinks.inspect}"
         end
       end
@@ -123,7 +123,7 @@ module LinkHeaders
         relation = sections['rel']
         sections.delete('rel')
         relations = relation.split(/\s+/)  # handle the multiple relation case
-        $stderr.puts "RELATIONS #{relations}"
+        warn "RELATIONS #{relations}"
 
         relations.each do |rel|
           next unless rel.match?(/\w/)
@@ -138,8 +138,8 @@ module LinkHeaders
     #
     # @param [String] body The HTML of the page containing HTML Link headers
     #
-    def parse_html_link_headers(body)
-      m = MetaInspector.new('http://example.org', document: body)
+    def parse_html_link_headers(body:, anchor: '')
+      m = MetaInspector.new(anchor, document: body)
       # an array of elements that look like this: [{:rel=>"alternate", :type=>"application/ld+json", :href=>"http://scidata.vitk.lv/dataset/303.jsonld"}]
       newlinks = Array.new
       m.head_links.each do |l|
@@ -154,7 +154,7 @@ module LinkHeaders
         l.delete(:href)        
         
         relations = relation.split(/\s+/)  # handle the multiple relation case
-        $stderr.puts "RELATIONS #{relations}"
+        warn "RELATIONS #{relations}"
 
         relations.each do |rel|
           next unless rel.match?(/\w/)
