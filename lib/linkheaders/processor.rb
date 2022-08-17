@@ -245,13 +245,13 @@ module LinkHeaders
       # warn "linkset body #{linkset.inspect}"
       return {} unless linkset
 
-      links = linkset.scan(/(<.*?>[^<]+)/) # split on the open angle bracket, which indicates a new link
+#      links = linkset.scan(/(<.*?>[^<]+)/) # split on the open angle bracket, which indicates a new link
+      links = linkset.split(/,\n*/) # split on the comma+newline
       # warn "Links found #{links}"
 
       links.each do |ls|
-        # warn "workking on link #{ls}"
-        ls = ls.first # ls is a single element array
-        elements = ls.split(';') # semicolon delimited fields
+        # warn "working on link #{ls}"
+        elements = ls.split(';').map {|element| element.strip!} # semicolon delimited fields
         # ["<https://w3id.org/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/>", "anchor=\"https://s11.no/2022/a2a-fair-metrics/08-http-describedby-citeas-linkset-txt/\"", "rel=\"cite-as\""]
         href = elements.shift # first element is always the link url
         # warn "working on link href #{href}"
@@ -259,8 +259,6 @@ module LinkHeaders
         attrhash = {}
         elements.each do |e|
           key, val = e.split('=')
-          key.strip!
-          val.strip!
           val.delete_prefix!('"').delete_suffix!('"') # get rid of newlines and start/end quotes
           attrhash[key.to_sym] = val # split on key=val and make key a symbol
         end 
