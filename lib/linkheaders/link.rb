@@ -127,7 +127,7 @@ module LinkHeaders
           if l.relation != link.relation
             @warnings |= ['WARN: Found identical hrefs with different relation types.  This may be suspicious. Both have been retained']
           else
-            @warnings |= ['WARN: found apparent duplicate. Ignoring and returning known link']
+            @warnings |= ["WARN: found apparent duplicate #{l.relation} #{l.href} EQUALS#{link.href}. Ignoring and returning known link #{l.relation} #{l.href}"]
             link = l
           end
         end

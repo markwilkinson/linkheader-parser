@@ -59,14 +59,14 @@ module LinkHeaders
         return [[], []]
       end
 
-      newlinks = parse_http_link_headers(head) # pass guid to check against anchors in linksets
-      warn "HTTPlinks #{newlinks.inspect}"
+      _newlinks = parse_http_link_headers(head)
+      # warn "HTTPlinks #{newlinks.inspect}"
 
-      ['text/html','text/xhtml+xml', 'application/xhtml+xml'].each do |format|
+      ['text/html', 'text/xhtml+xml', 'application/xhtml+xml'].each do |format|
         if head[:content_type] and head[:content_type].match(format)
           warn "found #{format} content - parsing"
-          htmllinks = parse_html_link_headers(body: body, anchor: default_anchor) # pass html body to find HTML link headers
-          warn "htmllinks #{htmllinks.inspect}"
+          _htmllinks = parse_html_link_headers(body: body, anchor: default_anchor) # pass html body to find HTML link headers
+          # warn "htmllinks #{htmllinks.inspect}"
         end
       end
     end
@@ -99,10 +99,12 @@ module LinkHeaders
         # warn "link is:  #{part}"
 
         section = part.split(';') # ["<https://example.one.com>", "rel='preconnect'"]
-        # warn section
+        warn section
         next unless section[0]
 
         href = section[0][/<(.*)>/, 1]
+        next unless href  # this is mandatory!
+
         next unless section[1]
 
         sections = {}
@@ -123,10 +125,11 @@ module LinkHeaders
         relation = sections['rel']
         sections.delete('rel')
         relations = relation.split(/\s+/)  # handle the multiple relation case
-        warn "RELATIONS #{relations}"
+        # warn "HEADERS RELATIONS #{relations}"
 
         relations.each do |rel|
           next unless rel.match?(/\w/)
+          puts "LICENCE is #{href}\n\n" if rel == "license"
           newlinks << factory.new_link(responsepart: :header, anchor: anchor, href: href, relation: rel, **sections) # parsed['https://example.one.com'][:rel] = "preconnect"
         end
       end
@@ -143,7 +146,6 @@ module LinkHeaders
       # an array of elements that look like this: [{:rel=>"alternate", :type=>"application/ld+json", :href=>"http://scidata.vitk.lv/dataset/303.jsonld"}]
       newlinks = Array.new
       m.head_links.each do |l|
-        warn "HTML head link is:  #{l.inspect}"
         next unless l[:href] and l[:rel] # required
 
         anchor = l[:anchor] || default_anchor
@@ -154,7 +156,7 @@ module LinkHeaders
         l.delete(:href)        
         
         relations = relation.split(/\s+/)  # handle the multiple relation case
-        warn "RELATIONS #{relations}"
+        # warn "BODY RELATIONS #{relations}"
 
         relations.each do |rel|
           next unless rel.match?(/\w/)
@@ -189,9 +191,10 @@ module LinkHeaders
 
     def processJSONLinkset(href:)
       _headers, linkset = lhfetch(href, { 'Accept' => 'application/linkset+json' })
-      # warn "Linkset body #{linkset.inspect}"
+      # warn "Linkset body #{linkset.inspect}\n\nLinkset headers #{_headers}\n\n"
       newlinks = Array.new
       return nil unless linkset
+      # warn "linkset #{linkset}"
 
       # linkset = '{ "linkset":
       #   [
@@ -208,20 +211,28 @@ module LinkHeaders
       # }'
 
       linkset = JSON.parse(linkset)
+      # warn "linkset #{linkset}"
+      if linkset['data'] and linkset['data']['linkset']
+        linkset['linkset'] = linkset['data']['linkset']
+      end
+      return nil unless linkset['linkset'].first
       linkset['linkset'].each do |ls|
         # warn ls.inspect, "\n"
         anchor = ls['anchor'] || @default_anchor
-        ls.delete('anchor') if ls['anchor'] # we need to delete since all others have a list as a value
+        ls.delete('anchor') if ls['anchor'] # we need to delete since almost all others have a list as a value
         attrhash = {}
         # warn ls.keys, "\n"
 
-        ls.each_key do |relation| # key =  e.g. "item", "described-by". "cite"
-          # warn reltype, "\n"
+        ls.each_key do |relation| # relation =  e.g. "item", "described-by". "cite"
+          href = ""
+          # warn relation
           # warn ls[reltype], "\n"
+          ls[relation] = [ls[relation]] unless ls[relation].is_a? Array  # force it to be a list, if it isn't
           ls[relation].each do |attrs|  # attr = e.g.  {"href": "http://example.com/foo1", "type": "text/html"}
+            # warn "ATTR: #{attrs}"
             next unless attrs['href']  # this is a required attribute of a  linkset relation
-
             href = attrs['href']
+            attrs.delete("href")
             # now go through the other attributes of that relation
             attrs.each do |attr, val| # attr = e.g. "type"; val = "text/html"
               attrhash[attr.to_sym] = val
@@ -229,7 +240,6 @@ module LinkHeaders
           end
 
           relations = relation.split(/\s+/)  # handle the multiple relation case
-
           relations.each do |rel|
             next unless rel.match?(/\w/)
             newlinks << factory.new_link(responsepart: :header, anchor: anchor, href: href, relation: rel, **attrhash) # parsed['https://example.one.com'][:rel] = "preconnect"
