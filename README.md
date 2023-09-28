@@ -1,4 +1,4 @@
-# LinkHeader::Parser
+# LinkHeaders::Processor
 
 A gem to extract Link Headers from Web responses.
 

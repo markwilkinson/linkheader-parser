@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/markwilkinson/linkheader-processor"
   spec.metadata["changelog_uri"] = "https://github.com/markwilkinson/linkheader-processor/blob/master/CHANGELOG.md"
+  spec.metadata["documentation_uri"] = "https://www.rubydoc.info/gems/linkheaders-processor/"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -39,7 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "json", "~> 2.0"
   spec.add_dependency "json-ld", "~> 3.2"
   spec.add_dependency "json-ld-preloaded", "~> 3.2"
-  spec.add_dependency "securerandom", "~> 0.1.0"
+  spec.add_dependency "securerandom"
   spec.add_dependency "metainspector", "~>5.11.2"
   spec.add_dependency 'link_header', '~> 0.0.8'
 end
