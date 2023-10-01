@@ -96,28 +96,33 @@ module LinkHeaders
     def split_http_link_headers_and_process(parts)
       newlinks = Array.new
       parts.each do |part, _index|
-        # warn "link is:  #{part}"
+        warn "link is:  #{part}"  # <https://s11.no/2022/a2a-fair-metrics/70-rda-r1-01m-t2-type-charset/test-apple-data.csv>;rel="item";type="text/csv;charset=UTF-8"
 
-        section = part.split(';') # ["<https://example.one.com>", "rel='preconnect'"]
-        warn section
-        next unless section[0]
-
-        href = section[0][/<(.*)>/, 1]
-        next unless href  # this is mandatory!
-
-        next unless section[1]
+        # this is crazy hard, because we can't rely on quotes!
+        part = part + ";"
+        href = part[/<([^\]]+)>;/, 1]
+        next unless href
+        part = part.gsub(/<([^\]]+)>\s?;\s?/, "") # now only ;rel="item";type="text/csv;charset=UTF-8"; pro=gram
+        pieces = part.scan(/(\S+?\s?=\s?"[^"]+?"\s?);?/).flatten  # ["rel=\"item\"", "type=\"text/csv;charset=UTF-8\""]   and the non-quoted stuff is ignored
+        pieces.each do |p|
+          part = part.gsub(p, "")  # now just ";;prog=gram;"
+        end
+        rest = part.split(";")  # ["", "", "prog=gram"]
 
         sections = {}
-        section[1..].each do |s| # can be more than one link property "rel='preconnect'"
+        pieces.concat(rest).each do |s| # can be more than one link property "rel='preconnect'"
           s.strip!
-          unless m = s.match(%r{(\w+?)="?([\w:\d.,\#\-+/\s]+)"?})
+          unless m = s.match(%r{(\w+?)\s?=\s?"?([\w\;\:\d\.\,\=\#\-\+\/\s]+)"?})
+          warn " NO PATTERN MATCH ON #{s}"
             next
           end # can be rel="cite-as describedby"  --> two relations in one!  or "linkset+json"
 
           relation = m[1] # rel"
           value = m[2] # "preconnect"
+          warn "section relation #{relation} value #{value}"
           sections[relation] = value # value could hold multiple relation types   sections[:rel] = "preconnect"
         end
+
         next unless sections['rel']  # the relation is required!
 
         anchor = sections['anchor'] || default_anchor
